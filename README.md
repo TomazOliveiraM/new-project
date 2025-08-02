@@ -1,41 +1,63 @@
 # Sobre o Projeto
 
-Este é um projeto de uma plataforma de eventos, construído com uma arquitetura web full-stack. Ele permite que usuários se cadastrem, criem e gerenciem eventos, comprem ingressos e visualizem estatísticas. A aplicação utiliza um frontend reativo construído em React e um backend robusto em Node.js para servir uma API RESTful.
+1. Visão Geral do Projeto
+O "Gerenciador de Eventos" é uma aplicação web completa (Full Stack) projetada para criar, gerenciar e participar de eventos. A plataforma atende a três tipos de usuários distintos, cada um com permissões e funcionalidades específicas:
 
-## ✨ Funcionalidades Principais
+Participante: Pode navegar pelos eventos, ver detalhes e adquirir ingressos.
+Organizador: Pode criar, editar e gerenciar seus próprios eventos, além de visualizar estatísticas de participação.
+Administrador: Possui controle total sobre a plataforma, incluindo o gerenciamento de todos os eventos e usuários.
+2. Tecnologias Utilizadas
+A arquitetura do projeto é baseada no stack MERN (MongoDB, Express, React, Node.js), uma escolha moderna e robusta para aplicações web.
 
-*   **Autenticação de Usuários**: Sistema completo de registro e login com diferentes perfis (administrador, organizador, participante).
-*   **Gerenciamento de Eventos**: Organizadores podem criar, editar e visualizar seus próprios eventos.
-*   **Compra de Ingressos**: Participantes podem visualizar eventos e adquirir ingressos.
-*   **Roteamento Protegido**: O acesso a determinadas páginas é restrito com base no perfil do usuário logado.
-*   **Upload de Imagens**: Funcionalidade para upload de imagens para os eventos, utilizando um parser especializado no backend.
-*   **Painel Administrativo**: Área exclusiva para administradores gerenciarem a plataforma.
+Backend
+Runtime: Node.js
+Framework: Provavelmente Express.js (inferido pela estrutura de API e uso de middlewares).
+Banco de Dados: MongoDB, hospedado na nuvem com o serviço MongoDB Atlas.
+Autenticação:
+Baseada em Token: JSON Web Tokens (JWT) para proteger as rotas da API.
+Login Social: Integração com Google OAuth 2.0 para um login rápido e seguro.
+Upload de Arquivos: A presença da dependência formidable indica que o backend está preparado para receber uploads de arquivos (ex: imagens de eventos), tratando dados multipart/form-data.
+Gerenciamento de Ambiente: Uso da biblioteca dotenv para carregar variáveis de ambiente a partir de um arquivo .env, separando as configurações sensíveis do código-fonte.
 
----
+Frontend
+Biblioteca: React.js
+Roteamento: react-router-dom para gerenciar a navegação entre as diferentes páginas da aplicação.
+Estilização: CSS customizado, importado através do arquivo App.css.
+Gerenciamento de Estado/Autenticação: Um AuthProvider (mencionado no App.jsx como estando em main.jsx) provavelmente gerencia o estado de autenticação do usuário em toda a aplicação.
+3. Funcionalidades Detalhadas
+A aplicação possui um sistema de rotas bem definido, com controle de acesso baseado em papéis (Roles).
 
-## 🛠️ Tecnologias Utilizadas
+Rotas Públicas (Acessíveis a todos)
+/: Página Inicial (HomePage) - A porta de entrada da aplicação.
+/login: Página de Login (LoginPage) - Onde os usuários se autenticam.
+/register/:role?: Página de Registro (RegisterPage) - Permite o cadastro de novos usuários, possivelmente com a opção de escolher um papel (ex: organizador).
+/events: Lista de Eventos (EventsListPage) - Exibe todos os eventos disponíveis.
+/events/:id: Detalhes do Evento (EventDetailsPage) - Mostra informações detalhadas sobre um evento específico.
+/unauthorized: Página de Acesso Negado (UnauthorizedPage) - Para onde usuários são redirecionados se tentarem acessar uma rota protegida sem permissão.
+Rotas Protegidas (Requerem Login e/ou Papel Específico)
+O componente ProtectedRoute é o guardião que garante que apenas usuários autorizados acessem estas rotas.
 
-O projeto é dividido em duas partes principais: **Frontend** (client-side) e **Backend** (server-side).
+Para Organizadores e Admins (allowedRoles={['admin', 'organizador']})
+/events/new: Criar Novo Evento (EventFormPage) - Formulário para adicionar um novo evento.
+/events/edit/:id: Editar Evento (EventFormPage) - O mesmo formulário, mas para atualizar um evento existente.
+/my-events: Meus Eventos (MyEventsPage) - Lista de eventos criados pelo organizador logado.
+/organizer/stats: Estatísticas do Organizador (OrganizerStatsPage) - Dashboard com dados e métricas sobre os eventos do organizador.
+Para Participantes e Admins (allowedRoles={['participante', 'admin']})
+/my-tickets: Meus Ingressos (MyTicketsPage) - Exibe os ingressos que o participante adquiriu.
+Apenas para Admins (allowedRoles={['admin']})
+/admin: Painel do Administrador (AdminPage) - Área administrativa com funcionalidades de gerenciamento global.
+Rota Geral Protegida
+/dashboard: Dashboard (Dashboard) - Uma página geral para usuários logados.
+4. Análise do Backend (.env)
+O arquivo .env revela a espinha dorsal da configuração do servidor:
 
-### Backend (Server-side)
+MONGO_URI: Conecta a aplicação a um cluster do MongoDB Atlas, garantindo escalabilidade e segurança para o banco de dados. Uma conexão local também está preparada para desenvolvimento.
+JWT_SECRET: Um segredo forte e único usado para assinar e verificar os tokens de autenticação, garantindo a integridade das sessões dos usuários.
+GOOGLE_CLIENT_ID e GOOGLE_CLIENT_SECRET: Credenciais para a API do Google, que permitem a funcionalidade de "Login com Google".
+GOOGLE_CALLBACK_URL: A URL no backend para a qual o Google redireciona o usuário após a autenticação bem-sucedida.
+FRONTEND_URL: Essencial para a configuração de CORS (Cross-Origin Resource Sharing), permitindo que apenas o seu frontend faça requisições à API.
+PORT: Define a porta em que o servidor backend irá rodar (porta 5000).
 
-O backend é responsável pela lógica de negócio, gerenciamento de dados e segurança.
-
-*   **[Node.js](https://nodejs.org/)**: Ambiente de execução JavaScript que permite construir aplicações de servidor escaláveis.
-*   **[Express.js](https://expressjs.com/pt-br/)**: Framework minimalista para Node.js, utilizado para criar a API RESTful, gerenciar rotas (`/api/events`, `/api/users`, etc.) e middlewares.
-*   **Formidable**: Biblioteca de alta performance para Node.js, especializada em analisar dados de formulários (`multipart/form-data`). É a tecnologia chave para processar os uploads de imagens dos eventos de forma eficiente.
-*   **bcrypt.js**: Essencial para a segurança, esta biblioteca é usada para fazer o *hash* das senhas dos usuários antes de salvá-las no banco de dados, prevenindo que senhas sejam armazenadas em texto plano.
-
-### Frontend (Client-side)
-
-O frontend é uma **Single Page Application (SPA)**, proporcionando uma experiência de usuário rápida e fluida.
-
-*   **React**: Biblioteca JavaScript para construir interfaces de usuário componentizadas e declarativas. É a base de toda a interface do projeto.
-*   **React Router**: Utilizado para gerenciar a navegação e o roteamento do lado do cliente. Ele permite criar URLs distintas para cada página (`/login`, `/events/:id`) sem a necessidade de recarregar a página inteira.
-*   **React Context API**: Usado para o gerenciamento de estado global, principalmente no `AuthContext`. Ele permite compartilhar dados de autenticação (como o usuário logado e seu token) entre todos os componentes da aplicação de forma simples e eficiente.
-*   **CSS**: Utilizado para a estilização dos componentes, garantindo uma aparência visual coesa e agradável, como visto no arquivo `App.css`.
-
----
 
 Alunos: Tomaz /
         Roberto 
